@@ -2,7 +2,7 @@ import { useState } from "react";
 import { dbase } from "./FirebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 
-export const Contact = () => {
+export const Contact = ({ text }) => {
   // State variables for form data
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -50,8 +50,7 @@ export const Contact = () => {
             <hr className="w-8 h-0.5 bg-white border-none mt-2" />
           </div>
           <p className="text-white text-sm lg:text-base w-[90%] lg:w-[80%] mx-auto lg:mx-0">
-            Book a virtual class on Web Development or HIRE ME for a website
-            project.
+            {text}
           </p>
           <p className="text-white text-sm lg:text-base w-full lg:w-[90%]">
             +234 9043970401 <br /> raniem57@gmail.com
@@ -93,7 +92,7 @@ export const Contact = () => {
             )}
             <button
               type="submit"
-              className="w-fit px-6 bg-secondary rounded py-1 text-white"
+              className="w-fit px-8 bg-secondary rounded-full py-2 text-white"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Sending..." : "SEND MESSAGE"}

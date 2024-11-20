@@ -26,10 +26,10 @@ export const NavBar = () => {
             <p className="px-4">Projects</p>
           </a>
           <a href={"#contact"}>
-            <p className="px-4 bg-secondary rounded py-1">Hire Me</p>
+            <p className="px-8 bg-secondary rounded-full py-2">Hire Me</p>
           </a>
-          <a href={"#contact"}>
-            <p className="px-4">In-person Tutorial</p>
+          <a href={"/ExcelCourse"}>
+            <p className="px-4">Excel Course</p>
           </a>
         </div>
 
@@ -67,12 +67,12 @@ export const NavBar = () => {
           <p className="py-2 text-lg w-full mb-2">Projects</p>
         </a>
         <a href={"#contact"} onClick={() => setMobileMenuOpen(false)}>
-          <p className="py-2 text-lg w-full bg-secondary rounded pl-2 px-8">
+          <p className="py-2 text-lg w-full bg-secondary rounded-r-lg px-8">
             Hire Me
           </p>
         </a>
-        <a href={"#contact"} onClick={() => setMobileMenuOpen(false)}>
-          <p className="py-2 w-full text-lg mt-2">In-person Tutorial</p>
+        <a href={"/ExcelCourse"} onClick={() => setMobileMenuOpen(false)}>
+          <p className="py-2 w-full text-lg mt-2">Excel Course</p>
         </a>
       </div>
     </div>

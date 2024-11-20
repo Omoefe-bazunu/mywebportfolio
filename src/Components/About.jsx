@@ -36,7 +36,7 @@ export const About = () => {
             practices.
           </p>
           <a href={"#contact"}>
-            <p className="w-fit px-6 py-1 bg-secondary rounded text-white">
+            <p className="w-fit px-8 py-2 bg-secondary rounded-full text-white">
               Hire Me
             </p>
           </a>

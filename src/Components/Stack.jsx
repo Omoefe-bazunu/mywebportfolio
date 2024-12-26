@@ -43,8 +43,10 @@ export const Stack = () => {
     >
       <div className="w-full lg:w-[50%] h-fit flex flex-col items-center lg:items-start justify-center gap-8 mx-auto px-6 lg:px-8">
         <div className="flex flex-col items-center lg:items-start py-4">
-          <p className="text-white font-semibold">My Stack</p>
-          <hr className="w-8 h-0.5 bg-white border-none mt-1" />
+          <p className="text-white font-semibold text-lg lg:text-xl">
+            My Stack
+          </p>
+          <hr className="w-8 h-0.5 bg-white border-none mt-2" />
         </div>
 
         <div className="w-full grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-6">
@@ -52,12 +54,12 @@ export const Stack = () => {
             <div
               key={index}
               style={{ width: "auto", height: "auto" }}
-              className="w-full h-28 rounded-lg bg-slate-600 overflow-hidden relative p-4 flex items-center justify-center"
+              className="w-full h-24 rounded-lg bg-primary overflow-hidden relative p-4 flex items-center justify-center"
             >
               <img
                 src={src}
                 alt={`tech-stack-${index}`}
-                className="rounded-lg scale-animation w-24 h-24"
+                className="rounded-lg scale-animation w-20 h-20"
               />
             </div>
           ))}

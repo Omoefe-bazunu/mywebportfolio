@@ -70,8 +70,10 @@ export const Projects = () => {
       <div className="w-full lg:w-[50%] h-fit lg:h-96 flex flex-col lg:flex-row items-center justify-center lg:items-start lg:justify-start gap-8 mx-auto px-8 lg:pl-8 ">
         <div className="w-full h-fit flex flex-col gap-8 justify-center items-center lg:items-start py-4">
           <div className="flex flex-col items-center justify-center lg:items-start lg:justify-start">
-            <p className="text-white font-semibold">Projects</p>
-            <hr className="w-8 h-0.5 bg-white border-none" />
+            <p className="text-white font-semibold text-lg lg:text-xl">
+              Projects
+            </p>
+            <hr className="w-8 h-0.5 bg-white border-none mt-2" />
           </div>
           <p className="w-[90%] lg:w-[80%] text-white text-center lg:text-left">
             Have a look at the projects I have worked on using my Stack.
@@ -93,7 +95,7 @@ export const Projects = () => {
         </div>
         {currentProject && (
           <div
-            className="w-full h-96 lg:h-full bg-slate-500 rounded-lg relative projectList border-2 border-tet"
+            className="w-full h-96 lg:h-full bg-slate-500 rounded-tl-xl rounded-br-xl relative projectList border-2 border-tet"
             style={{
               backgroundImage: `url(${currentProject.img})`,
               backgroundSize: "cover",
@@ -101,9 +103,9 @@ export const Projects = () => {
             }}
           >
             <a href={currentProject.link} target="_blank">
-              <div className="w-12 h-12 rounded-full bg-tet flex justify-center items-center absolute -bottom-4 -right-4 scale-animation">
-                <div className="w-8 h-8 rounded-full bg-secondary flex justify-center items-center">
-                  <p className="text-white font-bold text-xs text-center">GO</p>
+              <div className="w-16 h-16 rounded-full bg-tet flex justify-center items-center absolute -bottom-4 -right-4 scale-animation">
+                <div className="w-12 h-12 rounded-full bg-secondary flex justify-center items-center">
+                  <p className="text-white font-bold text-center">Visit</p>
                 </div>
               </div>
             </a>

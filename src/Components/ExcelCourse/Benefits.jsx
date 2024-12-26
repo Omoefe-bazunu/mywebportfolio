@@ -67,7 +67,7 @@ export const Benefits = () => {
             </div>
           ))}
         </div>
-        <a href="#">
+        <a href="https://selar.co/w21g55" target="_blank">
           <p className="py-2 px-8 bg-secondary rounded-full mt-6 font-medium text-white text-center">
             GET COURSE
           </p>

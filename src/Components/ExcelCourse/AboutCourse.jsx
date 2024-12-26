@@ -51,14 +51,17 @@ export const AboutCourse = () => {
             can be downloaded and watched offline on Phone or Laptop/Desktop.
           </p>
           <p className="border-b-2 border-white pb-2">
-            You are advised not attempt to resell the course as that will
-            attract legal actions from the course owner. Wish you success by
-            God's grace!!!
+            You are advised not attempt to resell the course without due consent
+            as that will attract legal actions from the course owner. Wish you
+            success by God's grace!!!
           </p>
           <p className="border-b-2 border-white pb-2">
             You can
             <span className=" text-excel mx-2">
-              <a href="https://chat.whatsapp.com/LBWcksvYmJzIXQpLBE7xrJ">
+              <a
+                href="https://chat.whatsapp.com/LBWcksvYmJzIXQpLBE7xrJ"
+                target="_blank"
+              >
                 join our GENERAL GROUP on WhatsApp
               </a>
             </span>
@@ -66,7 +69,7 @@ export const AboutCourse = () => {
             still deciding as a way to get convinced to make your decision.
           </p>
         </div>
-        <a href="">
+        <a href="https://selar.co/w21g55" target="_blank">
           <p className=" p-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white">
             GET COURSE
           </p>

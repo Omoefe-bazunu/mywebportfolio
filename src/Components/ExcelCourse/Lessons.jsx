@@ -163,7 +163,7 @@ export const Lessons = () => {
             </div>
           ))}
         </div>
-        <a href="#">
+        <a href="https://selar.co/w21g55" target="_blank">
           <p className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center">
             GET COURSE
           </p>

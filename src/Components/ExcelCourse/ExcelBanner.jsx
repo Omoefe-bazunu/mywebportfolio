@@ -31,7 +31,7 @@ export const ExcelBanner = () => {
             MS EXCEL
           </h1>
           <h2 className="text-3xl lg:text-4xl font-black">COURSE</h2>
-          <a href="">
+          <a href="https://selar.co/w21g55" target="_blank">
             <p className=" p-8 py-2 bg-secondary rounded-full mt-6 font-medium">
               GET COURSE
             </p>

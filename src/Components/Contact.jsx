@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { dbase } from "./FirebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import emailjs from "@emailjs/browser";
 
 export const Contact = ({ text }) => {
-  // State variables for form data
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -11,7 +9,6 @@ export const Contact = ({ text }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true); // Disable button during submission
@@ -19,13 +16,19 @@ export const Contact = ({ text }) => {
     setSuccess(false); // Reset success state
 
     try {
-      // Add message to Firestore 'messages' collection
-      await addDoc(collection(dbase, "messages"), {
+      const templateParams = {
         name,
         email,
         message,
-        createdAt: new Date(),
-      });
+      };
+
+      // Replace the values here with your emailJS service, template, and user ID
+      await emailjs.send(
+        "service_ccid698", // Replace with your service ID
+        "template_qml5dg9", // Replace with your template ID
+        templateParams,
+        "cZC6HUxRjsMFR5npe" // Replace with your user ID
+      );
 
       setSuccess(true); // Show success message
       setName(""); // Clear form fields
@@ -87,9 +90,7 @@ export const Contact = ({ text }) => {
               className="w-full bg-transparent border-b border-white outline-none text-white placeholder-white text-sm py-2"
             />
             {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-            {success && (
-              <div className="text-green-500 text-sm mt-2">Message sent!</div>
-            )}
+
             <button
               type="submit"
               className="w-fit px-8 bg-secondary rounded-full py-2 text-white"
@@ -97,6 +98,9 @@ export const Contact = ({ text }) => {
             >
               {isSubmitting ? "Sending..." : "SEND MESSAGE"}
             </button>
+            {success && (
+              <div className="text-green-500 text-sm mt-2">Message sent!</div>
+            )}
           </form>
         </div>
       </div>

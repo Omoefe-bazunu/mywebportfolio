@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, dbase } from "../FirebaseConfig";
 
 export const Benefits = () => {
   const benefits = [
@@ -30,10 +33,36 @@ export const Benefits = () => {
   ];
 
   const [expandedIndex, setExpandedIndex] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const toggleDescription = (index) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
+
+  // Listen for auth state changes and fetch the user's subscription status
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        try {
+          const userDocRef = doc(dbase, "users", currentUser.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists()) {
+            setIsSubscribed(userSnap.data().isSubscribed);
+          } else {
+            setIsSubscribed(false);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setIsSubscribed(false);
+        }
+      } else {
+        setIsSubscribed(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="w-full bg-primary">
@@ -67,11 +96,29 @@ export const Benefits = () => {
             </div>
           ))}
         </div>
-        <a href="https://selar.co/w21g55" target="_blank">
-          <p className="py-2 px-8 bg-secondary rounded-full mt-6 font-medium text-white text-center">
-            GET COURSE
-          </p>
-        </a>
+        {/* Conditional Button */}
+        {!isSubscribed ? (
+          <a
+            href="https://selar.co/w21g55"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p className="py-2 px-8 bg-secondary rounded-full mt-6 font-medium text-white text-center">
+              SUBSCRIBE TO START
+            </p>
+          </a>
+        ) : (
+          <button
+            onClick={() =>
+              document
+                .getElementById("lessons")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="py-2 px-8 bg-secondary rounded-full mt-6 font-medium text-white text-center"
+          >
+            CONTINUE WATCHING
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
-import { storage } from "../FirebaseConfig";
+import { storage, auth, dbase } from "../FirebaseConfig";
 import { ref, getDownloadURL } from "firebase/storage";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 export const ExcelBanner = () => {
   const [backgroundImage, setBackgroundImage] = useState("");
+  const [user, setUser] = useState(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
     const fetchBackgroundImage = async () => {
@@ -19,6 +23,37 @@ export const ExcelBanner = () => {
     fetchBackgroundImage();
   }, []);
 
+  // Listen for auth state changes and fetch the user's subscription status
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        try {
+          const userDocRef = doc(dbase, "users", currentUser.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists()) {
+            setIsSubscribed(userSnap.data().isSubscribed);
+          } else {
+            setIsSubscribed(false);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setIsSubscribed(false);
+        }
+      } else {
+        setIsSubscribed(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleContinueWatching = () => {
+    const lessonsSection = document.getElementById("lessons");
+    if (lessonsSection) {
+      lessonsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div
       className="w-full h-fit bg-slate-600 bg-cover bg-center bg-no-repeat"
@@ -27,15 +62,28 @@ export const ExcelBanner = () => {
       <div className="w-[90%] h-[350px] md:h-[450px] flex items-center mx-auto py-12 md:py-0">
         <div className="w-full flex flex-col items-center text-white">
           <p className="text-center font-bold">THE COMPLETE</p>
-          <h1 className="text-5xl lg:text-6xl text-excel font-black ">
+          <h1 className="text-5xl lg:text-6xl text-excel font-black">
             MS EXCEL
           </h1>
           <h2 className="text-3xl lg:text-4xl font-black">COURSE</h2>
-          <a href="https://selar.co/w21g55" target="_blank">
-            <p className=" p-8 py-2 bg-secondary rounded-full mt-6 font-medium">
-              GET COURSE
-            </p>
-          </a>
+          {isSubscribed ? (
+            <button
+              onClick={handleContinueWatching}
+              className="p-8 py-2 bg-secondary rounded-full mt-6 font-medium"
+            >
+              CONTINUE WATCHING
+            </button>
+          ) : (
+            <a
+              href="https://selar.co/w21g55"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <p className="p-8 py-2 bg-secondary rounded-full mt-6 font-medium">
+                SUBSCRIBE TO START
+              </p>
+            </a>
+          )}
         </div>
       </div>
     </div>

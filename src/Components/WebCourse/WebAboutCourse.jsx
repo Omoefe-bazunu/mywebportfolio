@@ -6,7 +6,7 @@ import { auth, dbase } from "../FirebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { PaystackButton } from "react-paystack";
 
-export const AboutCourse = () => {
+export const AboutWebCourse = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -15,7 +15,7 @@ export const AboutCourse = () => {
   useEffect(() => {
     const fetchImageUrl = async () => {
       try {
-        const imageRef = ref(storage, "general/EXCEL COURSE.jpg");
+        const imageRef = ref(storage, "general/webClass-02.jpeg");
         const url = await getDownloadURL(imageRef);
         setImageUrl(url);
       } catch (error) {
@@ -88,19 +88,16 @@ export const AboutCourse = () => {
         ></div>
         <div className="flex flex-col gap-6 text-white text-center mt-4">
           <p className="border-y-2 border-white py-2">
-            This is a comprehensive course that introduces you to the basic,
-            intermediate and advanced topics of Microsoft Excel, a well sought
-            after tool in many organizations across different
-            sectors/industries.
+            This course teaches you the very basics of Web Development from the
+            important concepts to the practical aspects.
           </p>
           <p className="border-b-2 border-white pb-2">
-            The course was recorded in a very detailed and explanatory manner
-            for anyone to understand regardless of your skill level in EXCEL. It
-            is also loaded with practical tasks which you will be performing
-            along with each lesson you cover to get a hands-on experience.
+            Even without any solid knowledge in computer science or any coding
+            experience, you will be able to learn to code like an expert and
+            build functional and modern websites.
           </p>
           <p className="border-b-2 border-white pb-2">
-            You can join our GENERAL GROUP on{" "}
+            You can join our GENERAL WEB DEV GROUP on{" "}
             <span className="text-excel mx-2">
               <a
                 href="https://chat.whatsapp.com/LBWcksvYmJzIXQpLBE7xrJ"

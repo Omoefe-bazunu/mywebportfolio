@@ -4,32 +4,33 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, dbase } from "../FirebaseConfig";
 import { PaystackButton } from "react-paystack";
 
-export const Benefits = () => {
+export const WebBenefits = () => {
   const benefits = [
     {
       title: "Higher chances of landing a high-paying job",
       description:
-        "Excel skills are in high demand for roles involving Data Entry, Tracking, Analysis, and Reporting across all sectors.",
+        "People who say websites are oudated are either living in a different reality or simply making excuses not to feel left out. Websites are much more useful and effective tiday than in the past and people who build websites are hardly in want of jobs, especially high-paying jobs.",
     },
     {
       title: "Opportunity for promotion or salary increase",
       description:
-        "Excel proficiency makes you invaluable at your workplace, motivating employers to retain you with promotions or pay raises.",
+        "Scaling your skills at your current workplace can makes you very valuable as you could help build a website to help your organization go digital and reach new clients/customers. Therefore, motivating your employer to retain you with promotions or pay raises.",
     },
     {
-      title: "Start your own Excel training course or YouTube channel",
+      title:
+        "Start your own Web development training course or YouTube channel",
       description:
-        "Teach Excel online or offline through digital courses, YouTube channels, or physical training and earn unlimited income.",
+        "You can teach web development online or offline through digital courses, YouTube channels, or physical training and earn unlimited income.",
     },
     {
       title: "Secure remote full-time or part-time jobs",
       description:
-        "Excel skills can open doors to remote job opportunities with both foreign and local companies.",
+        "Your web development skill can open doors to remote job opportunities with both foreign and local companies.",
     },
     {
       title: "Run freelance gigs",
       description:
-        "Use platforms like Upwork, Fiverr, and Gigfc to offer Excel-related freelance services and earn extra income.",
+        "Use platforms like Upwork, Fiverr, and Gigfc to offer web development services and earn huge income.",
     },
   ];
 
@@ -100,12 +101,12 @@ export const Benefits = () => {
     <div className="w-full bg-primary">
       <div className="w-full lg:w-[50%] h-fit flex flex-col items-center gap-4 mx-auto px-6 lg:px-8 py-12">
         <p className="text-white text-lg font-semibold">
-          Benefits of Learning Excel
+          Benefits of Learning Web Development
         </p>
         <hr className="w-8 h-0.5 bg-white my-2 border-none" />
         <p className="border-y-2 border-white py-2 text-center text-white">
-          Learning Excel offers numerous opportunities for personal and
-          professional growth, making it a valuable skill across various
+          Learning to build websites offers numerous opportunities for personal
+          and professional growth, making it a valuable skill across various
           industries.
         </p>
         <div className="w-full mt-6">

@@ -4,32 +4,28 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, dbase } from "../FirebaseConfig";
 import { PaystackButton } from "react-paystack";
 
-export const Benefits = () => {
+export const SmartphoneBenefits = () => {
   const benefits = [
     {
-      title: "Higher chances of landing a high-paying job",
+      title: "Higher chances of landing a remote job",
       description:
-        "Excel skills are in high demand for roles involving Data Entry, Tracking, Analysis, and Reporting across all sectors.",
+        "Graphic Design skill is one of the most demanded remote skill today given the fact that many businesses are either transitioning to online platforms or simply adding it as an extra marketing tool. This is a good time to learn this skill and levergae the opportunities and your smartphone is a great starting point. ",
     },
     {
-      title: "Opportunity for promotion or salary increase",
+      title: "Opportunity for collaboration with Social Media Managers",
       description:
-        "Excel proficiency makes you invaluable at your workplace, motivating employers to retain you with promotions or pay raises.",
+        "There are many social media managers today that are currently in need of Graphic Designers to work with in serving their social media management clients. You can fill this void with your progfessional designs crafted with your smartphone",
     },
     {
-      title: "Start your own Excel training course or YouTube channel",
+      title: "Start your own Graphic Design training course or YouTube channel",
       description:
-        "Teach Excel online or offline through digital courses, YouTube channels, or physical training and earn unlimited income.",
+        "When you get good at the skill, you can proceed to teach Graphic Design online or offline through digital courses that you sell on platforms like selar, YouTube channels, or physical training and earn unlimited income.",
     },
-    {
-      title: "Secure remote full-time or part-time jobs",
-      description:
-        "Excel skills can open doors to remote job opportunities with both foreign and local companies.",
-    },
+
     {
       title: "Run freelance gigs",
       description:
-        "Use platforms like Upwork, Fiverr, and Gigfc to offer Excel-related freelance services and earn extra income.",
+        "Use platforms like Upwork, Fiverr, and Gigfc to offer Graphic design-related freelance services and earn extra income.",
     },
   ];
 
@@ -100,13 +96,13 @@ export const Benefits = () => {
     <div className="w-full bg-primary">
       <div className="w-full lg:w-[50%] h-fit flex flex-col items-center gap-4 mx-auto px-6 lg:px-8 py-12">
         <p className="text-white text-lg font-semibold">
-          Benefits of Learning Excel
+          Benefits of SmartPhone Graphic Design
         </p>
         <hr className="w-8 h-0.5 bg-white my-2 border-none" />
         <p className="border-y-2 border-white py-2 text-center text-white">
-          Learning Excel offers numerous opportunities for personal and
-          professional growth, making it a valuable skill across various
-          industries.
+          Learning Smart Phone Graphic Design offers numerous opportunities for
+          personal and professional growth, making it a valuable skill across
+          various industries.
         </p>
         <div className="w-full mt-6">
           {benefits.map((benefit, index) => (

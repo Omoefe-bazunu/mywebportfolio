@@ -11,7 +11,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, dbase } from "../FirebaseConfig";
 import { PaystackButton } from "react-paystack";
 
-export const Lessons = () => {
+export const WebLessons = () => {
   const [lessons, setLessons] = useState([]);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [user, setUser] = useState(null);
@@ -21,7 +21,9 @@ export const Lessons = () => {
     // Fetch lessons from the ExcelCourse collection
     const fetchLessons = async () => {
       try {
-        const querySnapshot = await getDocs(collection(dbase, "ExcelCourse"));
+        const querySnapshot = await getDocs(
+          collection(dbase, "WebDevelopment")
+        );
         const lessonsData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -101,9 +103,13 @@ export const Lessons = () => {
           Course Video Lessons
         </p>
         <hr className="w-8 h-0.5 bg-primary my-2" />
-        <p className="border-y-2 border-primary py-4 text-center text-primary">
+        {/* <p className="border-y-2 border-primary py-4 text-center text-primary">
           This is a complete list of the video lessons for the course. You have
           to be subscribed to see the videos and stream them.
+        </p> */}
+        <p className="border-y-2 border-primary py-4 italic text-center text-primary">
+          The lessons will be available in the second week of March. Stay
+          connected.
         </p>
 
         {/* Lessons List */}

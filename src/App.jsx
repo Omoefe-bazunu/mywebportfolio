@@ -10,6 +10,8 @@ import { ExcelCourse } from "./Components/ExcelCourse/ExcelCourse";
 import Signup from "./Components/SignUp";
 import SignIn from "./Components/Signin";
 import CourseForm from "./Components/Courseform";
+import { SmartPhoneDesign } from "./Components/SmartphoneDesign/SmartPhoneCourse";
+import { WebCourse } from "./Components/WebCourse/WebCourse";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +21,8 @@ const router = createBrowserRouter(
       <Route path="Signin" element={<SignIn />} />
       <Route path="CourseForm" element={<CourseForm />} />
       <Route path="ExcelCourse" element={<ExcelCourse />} />
+      <Route path="SmartPhoneDesign" element={<SmartPhoneDesign />} />
+      <Route path="WebDevCourse" element={<WebCourse />} />
     </Route>
   )
 );

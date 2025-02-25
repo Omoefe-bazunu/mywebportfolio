@@ -5,7 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { PaystackButton } from "react-paystack";
 
-export const ExcelBanner = () => {
+export const WebBanner = () => {
   const [backgroundImage, setBackgroundImage] = useState("");
   const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -93,11 +93,11 @@ export const ExcelBanner = () => {
     >
       <div className="w-[90%] h-[350px] md:h-[450px] flex items-center mx-auto py-12 md:py-0">
         <div className="w-full flex flex-col items-center text-white">
-          <p className="text-center font-bold">THE COMPLETE</p>
-          <h1 className="text-5xl lg:text-6xl text-excel font-black">
-            MS EXCEL
+          <p className="text-center font-bold">LEARN TO CODE & BUILD MODERN</p>
+          <h1 className="text-5xl lg:text-6xl text-white font-black">
+            WEBSITES
           </h1>
-          <h2 className="text-3xl lg:text-4xl font-black">COURSE</h2>
+          <p className="text-center font-bold">FROM THE VERY BASICS</p>
           {isSubscribed ? (
             <button
               onClick={handleContinueWatching}

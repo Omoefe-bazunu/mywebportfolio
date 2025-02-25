@@ -7,6 +7,7 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, dbase } from "../FirebaseConfig";
 import { PaystackButton } from "react-paystack";
@@ -16,37 +17,60 @@ export const Lessons = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [introVideo, setIntroVideo] = useState(null);
+  const storage = getStorage();
 
   useEffect(() => {
-    // Fetch lessons from the ExcelCourse collection
+    // Fetch the Introduction video directly from Storage
+    const fetchIntroVideo = async () => {
+      try {
+        const introRef = ref(storage, "ExcelCourse/INTRODUCTION.mp4");
+        const url = await getDownloadURL(introRef);
+        setIntroVideo(url);
+      } catch (error) {
+        console.error("Error fetching Introduction video:", error);
+      }
+    };
+
+    // Fetch other lessons from Firestore
     const fetchLessons = async () => {
       try {
         const querySnapshot = await getDocs(collection(dbase, "ExcelCourse"));
-        const lessonsData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const lessonsData = await Promise.all(
+          querySnapshot.docs.map(async (doc) => {
+            const lessonData = doc.data();
+
+            if (lessonData.videoPath) {
+              try {
+                const videoUrl = await getDownloadURL(
+                  ref(storage, lessonData.videoPath)
+                );
+                return { id: doc.id, ...lessonData, videoLink: videoUrl };
+              } catch (error) {
+                console.error("Error fetching video URL:", error);
+              }
+            }
+            return { id: doc.id, ...lessonData, videoLink: null };
+          })
+        );
         setLessons(lessonsData);
       } catch (error) {
         console.error("Error fetching lessons:", error);
       }
     };
 
+    fetchIntroVideo();
     fetchLessons();
 
-    // Check user authentication and subscription status
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      console.log(currentUser);
       if (currentUser) {
         try {
           const userDocRef = doc(dbase, "users", currentUser.uid);
           const userSnap = await getDoc(userDocRef);
-          if (userSnap.exists()) {
-            setIsSubscribed(userSnap.data().isSubscribed);
-          } else {
-            setIsSubscribed(false);
-          }
+          setIsSubscribed(
+            userSnap.exists() ? userSnap.data().isSubscribed : false
+          );
         } catch (error) {
           console.error("Error fetching user data:", error);
           setIsSubscribed(false);
@@ -57,35 +81,31 @@ export const Lessons = () => {
     });
 
     return () => unsubscribe();
-  }, [dbase, auth]);
+  }, []);
 
   const toggleLesson = (index) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
-  // Paystack configuration – adjust amount and public key as needed
   const paystackConfig = {
     reference: new Date().getTime().toString(),
     email: user?.email || "",
-    amount: 200 * 100, // e.g. 10,000 NGN in kobo
+    amount: 200 * 100,
     publicKey: "pk_test_709459aa3725033176d7a957bb7a3191624988e5",
   };
 
   const onSuccess = async (reference) => {
-    // Payment successful: update Firestore user document
     try {
       if (user) {
         const userDocRef = doc(dbase, "users", user.uid);
-        await updateDoc(userDocRef, {
-          isSubscribed: true,
-        });
+        await updateDoc(userDocRef, { isSubscribed: true });
         setIsSubscribed(true);
         alert("Payment successful. You are now subscribed!");
       }
     } catch (error) {
       console.error("Error updating subscription status:", error);
       alert(
-        "Payment was successful, but we encountered an error updating your subscription status."
+        "Payment was successful, but we couldn't update your subscription status."
       );
     }
   };
@@ -106,7 +126,30 @@ export const Lessons = () => {
           to be subscribed to see the videos and stream them.
         </p>
 
-        {/* Lessons List */}
+        {/* Introduction Video - Always Available */}
+        <div className="w-full mt-6 text-white">
+          <div className="flex justify-between items-center bg-green-700 p-4">
+            <p className="font-semibold">Introduction</p>
+          </div>
+          <div className="mt-2 bg-gray-800 p-4">
+            {introVideo ? (
+              <video
+                controls
+                controlsList="nodownload"
+                onContextMenu={(e) => e.preventDefault()}
+                className="w-full rounded-md"
+                src={introVideo}
+                type="video/mp4"
+              />
+            ) : (
+              <p className="text-yellow-500">
+                No video available for this lesson.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Other Lessons - Subscription Required */}
         <div className="w-full mt-6">
           {lessons.map((lesson, index) => (
             <div key={lesson.id} className="w-full text-white mb-4">
@@ -123,28 +166,20 @@ export const Lessons = () => {
               {expandedIndex === index && (
                 <div className="mt-2 bg-gray-800 p-4">
                   {isSubscribed ? (
-                    <>
-                      {lesson?.videoLink ? (
-                        <video
-                          controls
-                          controlsList="nodownload"
-                          onContextMenu={(e) => e.preventDefault()}
-                          className="w-full rounded-md"
-                          src={lesson.videoLink}
-                          onError={(e) =>
-                            console.error("Video load error:", e.target.error)
-                          }
-                          onLoadedData={() =>
-                            console.log("Video loaded successfully")
-                          }
-                          type="video/mp4"
-                        />
-                      ) : (
-                        <p className="text-yellow-500">
-                          No video link available for this lesson.
-                        </p>
-                      )}
-                    </>
+                    lesson?.videoLink ? (
+                      <video
+                        controls
+                        controlsList="nodownload"
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full rounded-md"
+                        src={lesson.videoLink}
+                        type="video/mp4"
+                      />
+                    ) : (
+                      <p className="text-yellow-500">
+                        No video available for this lesson.
+                      </p>
+                    )
                   ) : (
                     <p className="text-white">
                       Subscribe to enable & watch this lesson video.
@@ -156,7 +191,7 @@ export const Lessons = () => {
           ))}
         </div>
 
-        {/* If not subscribed, show the Paystack subscribe button */}
+        {/* Subscribe Button */}
         {!isSubscribed && (
           <div className="mt-6">
             <PaystackButton

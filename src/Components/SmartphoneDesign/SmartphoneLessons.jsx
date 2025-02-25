@@ -7,6 +7,7 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, dbase } from "../FirebaseConfig";
 import { PaystackButton } from "react-paystack";
@@ -16,9 +17,9 @@ export const SmartphoneLessons = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [introVideo, setIntroVideo] = useState(null);
 
   useEffect(() => {
-    // Fetch lessons from the ExcelCourse collection
     const fetchLessons = async () => {
       try {
         const querySnapshot = await getDocs(
@@ -34,21 +35,29 @@ export const SmartphoneLessons = () => {
       }
     };
 
-    fetchLessons();
+    const fetchIntroVideo = async () => {
+      try {
+        const storage = getStorage();
+        const introRef = ref(storage, "SmartphoneDesign/INTRODUCTION.mp4");
+        const url = await getDownloadURL(introRef);
+        setIntroVideo(url);
+      } catch (error) {
+        console.error("Error fetching introduction video:", error);
+      }
+    };
 
-    // Check user authentication and subscription status
+    fetchLessons();
+    fetchIntroVideo();
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      console.log(currentUser);
       if (currentUser) {
         try {
           const userDocRef = doc(dbase, "users", currentUser.uid);
           const userSnap = await getDoc(userDocRef);
-          if (userSnap.exists()) {
-            setIsSubscribed(userSnap.data().isSubscribed);
-          } else {
-            setIsSubscribed(false);
-          }
+          setIsSubscribed(
+            userSnap.exists() ? userSnap.data().isSubscribed : false
+          );
         } catch (error) {
           console.error("Error fetching user data:", error);
           setIsSubscribed(false);
@@ -59,28 +68,24 @@ export const SmartphoneLessons = () => {
     });
 
     return () => unsubscribe();
-  }, [dbase, auth]);
+  }, []);
 
   const toggleLesson = (index) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
-  // Paystack configuration – adjust amount and public key as needed
   const paystackConfig = {
     reference: new Date().getTime().toString(),
     email: user?.email || "",
-    amount: 200 * 100, // e.g. 10,000 NGN in kobo
+    amount: 200 * 100,
     publicKey: "pk_test_709459aa3725033176d7a957bb7a3191624988e5",
   };
 
-  const onSuccess = async (reference) => {
-    // Payment successful: update Firestore user document
+  const onSuccess = async () => {
     try {
       if (user) {
         const userDocRef = doc(dbase, "users", user.uid);
-        await updateDoc(userDocRef, {
-          isSubscribed: true,
-        });
+        await updateDoc(userDocRef, { isSubscribed: true });
         setIsSubscribed(true);
         alert("Payment successful. You are now subscribed!");
       }
@@ -92,28 +97,35 @@ export const SmartphoneLessons = () => {
     }
   };
 
-  const onClose = () => {
-    alert("Payment process was closed.");
-  };
+  const onClose = () => alert("Payment process was closed.");
 
   return (
     <div className="w-full bg-excel2" id="lessons">
-      <div className="w-full lg:w-[50%] h-fit flex flex-col items-center gap-4 mx-auto px-6 lg:px-8 py-12">
+      <div className="w-full lg:w-[50%] flex flex-col items-center gap-4 mx-auto px-6 lg:px-8 py-12">
         <p className="text-primary text-lg font-semibold">
           Course Video Lessons
         </p>
         <hr className="w-8 h-0.5 bg-primary my-2" />
-        {/* <p className="border-y-2 border-primary py-4 text-center text-primary">
-          This is a complete list of the video lessons for the course. You have
-          to be subscribed to see the videos and stream them. Lessons 
-        </p> */}
-        <p className="border-y-2 border-primary py-4 italic text-center text-primary">
-          The lessons will be available in the second week of March. Stay
-          connected.
-        </p>
 
-        {/* Lessons List */}
         <div className="w-full mt-6">
+          {/* Introduction Video */}
+          <div className="w-full mb-6">
+            <p className="font-semibold text-white">Introduction Video</p>
+            {introVideo ? (
+              <video
+                controls
+                controlsList="nodownload"
+                className="w-full rounded-md"
+                src={introVideo}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+            ) : (
+              <div className="w-full h-48 bg-black rounded-md flex items-center justify-center text-gray-500">
+                No video uploaded yet
+              </div>
+            )}
+          </div>
+
           {lessons.map((lesson, index) => (
             <div key={lesson.id} className="w-full text-white mb-4">
               <div
@@ -125,32 +137,22 @@ export const SmartphoneLessons = () => {
                 </p>
                 <span>{expandedIndex === index ? "−" : "+"}</span>
               </div>
-
               {expandedIndex === index && (
                 <div className="mt-2 bg-gray-800 p-4">
                   {isSubscribed ? (
-                    <>
-                      {lesson?.videoLink ? (
-                        <video
-                          controls
-                          controlsList="nodownload"
-                          onContextMenu={(e) => e.preventDefault()}
-                          className="w-full rounded-md"
-                          src={lesson.videoLink}
-                          onError={(e) =>
-                            console.error("Video load error:", e.target.error)
-                          }
-                          onLoadedData={() =>
-                            console.log("Video loaded successfully")
-                          }
-                          type="video/mp4"
-                        />
-                      ) : (
-                        <p className="text-yellow-500">
-                          No video link available for this lesson.
-                        </p>
-                      )}
-                    </>
+                    lesson?.videoLink ? (
+                      <video
+                        controls
+                        controlsList="nodownload"
+                        className="w-full rounded-md"
+                        src={lesson.videoLink}
+                        onContextMenu={(e) => e.preventDefault()}
+                      />
+                    ) : (
+                      <p className="text-yellow-500">
+                        No video link available for this lesson.
+                      </p>
+                    )
                   ) : (
                     <p className="text-white">
                       Subscribe to enable & watch this lesson video.
@@ -162,7 +164,6 @@ export const SmartphoneLessons = () => {
           ))}
         </div>
 
-        {/* If not subscribed, show the Paystack subscribe button */}
         {!isSubscribed && (
           <div className="mt-6">
             <PaystackButton

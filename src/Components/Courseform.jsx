@@ -2,7 +2,7 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { dbase } from "./FirebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const CourseForm = () => {
   // Available course collections
@@ -35,7 +35,7 @@ const CourseForm = () => {
         lessonNumber: values.lessonNumber,
         title: values.title,
         videoLink: values.videoLink,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       });
 
       console.log("Document written with ID:", docRef.id);
@@ -118,9 +118,7 @@ const CourseForm = () => {
 
             {/* Google Drive Video Link */}
             <div>
-              <label className="block font-semibold">
-                Google Drive Video Link
-              </label>
+              <label className="block font-semibold">Video Link</label>
               <Field
                 type="text"
                 name="videoLink"

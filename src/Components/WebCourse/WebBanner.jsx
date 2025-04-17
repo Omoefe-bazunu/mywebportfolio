@@ -3,7 +3,6 @@ import { storage, auth, dbase } from "../FirebaseConfig";
 import { ref, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { PaystackButton } from "react-paystack";
 
 export const WebBanner = () => {
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -55,37 +54,6 @@ export const WebBanner = () => {
     }
   };
 
-  // Paystack configuration – adjust amount and public key as needed
-  const paystackConfig = {
-    reference: new Date().getTime().toString(),
-    email: user?.email || "",
-    amount: 200 * 100, // e.g. 10,000 NGN in kobo
-    publicKey: "pk_test_709459aa3725033176d7a957bb7a3191624988e5",
-  };
-
-  const onSuccess = async (reference) => {
-    // Payment successful: update Firestore user document
-    try {
-      if (user) {
-        const userDocRef = doc(dbase, "users", user.uid);
-        await updateDoc(userDocRef, {
-          isSubscribed: true,
-        });
-        setIsSubscribed(true);
-        alert("Payment successful. You are now subscribed!");
-      }
-    } catch (error) {
-      console.error("Error updating subscription status:", error);
-      alert(
-        "Payment was successful, but we encountered an error updating your subscription status."
-      );
-    }
-  };
-
-  const onClose = () => {
-    alert("Payment process was closed.");
-  };
-
   return (
     <div
       className="w-full h-fit bg-slate-600 bg-cover bg-center bg-no-repeat"
@@ -106,15 +74,12 @@ export const WebBanner = () => {
               CONTINUE WATCHING
             </button>
           ) : (
-            <div className="mt-6">
-              <PaystackButton
-                {...paystackConfig}
-                onSuccess={onSuccess}
-                onClose={onClose}
-                className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center"
-                text="SUBSCRIBE TO START"
-              />
-            </div>
+            <a
+              href="/Payment"
+              className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center"
+            >
+              SUBSCRIBE TO START
+            </a>
           )}
         </div>
       </div>

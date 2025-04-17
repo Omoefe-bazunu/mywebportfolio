@@ -58,21 +58,21 @@ export const Hero = () => {
             <a
               href={"https://x.com/raniem57"}
               target="_blank"
-              className="hover:bg-white hover:text-primary rounded-full p-2 text-xl md:text-2xl"
+              className="bg-white text-primary hover:bg-primary hover:text-white rounded-full p-2 text-xl md:text-2xl "
             >
-              <FaXTwitter />
+              <FaXTwitter className="" />
             </a>
             <a
               href={"https://www.linkedin.com/in/omoefe-bazunu-651b72203/"}
               target="_blank"
-              className="hover:bg-white hover:text-primary rounded-full p-2 text-xl md:text-2xl"
+              className="bg-white text-primary hover:bg-primary hover:text-white rounded-full p-2 text-xl md:text-2xl"
             >
               <FaLinkedinIn />
             </a>
             <a
               href={"https://github.com/Omoefe-bazunu"}
               target="_blank"
-              className="hover:bg-white hover:text-primary rounded-full p-2 text-xl md:text-2xl"
+              className="bg-white text-primary hover:bg-primary hover:text-white rounded-full p-2 text-xl md:text-2xl"
             >
               <FaGithub />
             </a>

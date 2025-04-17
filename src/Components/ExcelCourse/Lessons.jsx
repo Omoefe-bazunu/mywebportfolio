@@ -1,16 +1,8 @@
 import { useState, useEffect } from "react";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, dbase } from "../FirebaseConfig";
-import { PaystackButton } from "react-paystack";
 
 export const Lessons = () => {
   const [lessons, setLessons] = useState([]);
@@ -40,10 +32,10 @@ export const Lessons = () => {
           querySnapshot.docs.map(async (doc) => {
             const lessonData = doc.data();
 
-            if (lessonData.videoPath) {
+            if (lessonData.videoLink) {
               try {
                 const videoUrl = await getDownloadURL(
-                  ref(storage, lessonData.videoPath)
+                  ref(storage, lessonData.videoLink)
                 );
                 return { id: doc.id, ...lessonData, videoLink: videoUrl };
               } catch (error) {
@@ -53,7 +45,13 @@ export const Lessons = () => {
             return { id: doc.id, ...lessonData, videoLink: null };
           })
         );
-        setLessons(lessonsData);
+
+        // Ensure lessons are sorted by a specific field (e.g., lessonNumber)
+        const sortedLessons = lessonsData
+          .filter(Boolean) // Remove any undefined values caused by failed video fetches
+          .sort((a, b) => a.lessonNumber - b.lessonNumber); // Sorting by a numerical field
+
+        setLessons(sortedLessons);
       } catch (error) {
         console.error("Error fetching lessons:", error);
       }
@@ -87,33 +85,6 @@ export const Lessons = () => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
-  const paystackConfig = {
-    reference: new Date().getTime().toString(),
-    email: user?.email || "",
-    amount: 200 * 100,
-    publicKey: "pk_test_709459aa3725033176d7a957bb7a3191624988e5",
-  };
-
-  const onSuccess = async (reference) => {
-    try {
-      if (user) {
-        const userDocRef = doc(dbase, "users", user.uid);
-        await updateDoc(userDocRef, { isSubscribed: true });
-        setIsSubscribed(true);
-        alert("Payment successful. You are now subscribed!");
-      }
-    } catch (error) {
-      console.error("Error updating subscription status:", error);
-      alert(
-        "Payment was successful, but we couldn't update your subscription status."
-      );
-    }
-  };
-
-  const onClose = () => {
-    alert("Payment process was closed.");
-  };
-
   return (
     <div className="w-full bg-excel2" id="lessons">
       <div className="w-full lg:w-[50%] h-fit flex flex-col items-center gap-4 mx-auto px-6 lg:px-8 py-12">
@@ -142,9 +113,7 @@ export const Lessons = () => {
                 type="video/mp4"
               />
             ) : (
-              <p className="text-yellow-500">
-                No video available for this lesson.
-              </p>
+              <p className="text-white">No video available</p>
             )}
           </div>
         </div>
@@ -193,15 +162,12 @@ export const Lessons = () => {
 
         {/* Subscribe Button */}
         {!isSubscribed && (
-          <div className="mt-6">
-            <PaystackButton
-              {...paystackConfig}
-              onSuccess={onSuccess}
-              onClose={onClose}
-              className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center"
-              text="SUBSCRIBE TO START"
-            />
-          </div>
+          <a
+            href="/Payment"
+            className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center"
+          >
+            SUBSCRIBE TO START
+          </a>
         )}
       </div>
     </div>

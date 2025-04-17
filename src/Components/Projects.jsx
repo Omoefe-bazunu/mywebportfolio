@@ -8,9 +8,10 @@ export const Projects = () => {
   const [backgroundImage, setBackgroundImage] = useState("");
   const [projects, setProjects] = useState([]);
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch background image
     const fetchBackgroundImage = async () => {
       try {
         const imageRef = ref(storage, "general/bg3.jpg");
@@ -21,23 +22,57 @@ export const Projects = () => {
       }
     };
 
-    // Fetch projects data from Firestore
     const fetchProjects = async () => {
       try {
+        setLoading(true);
         const projectsCollection = collection(dbase, "projects");
         const projectDocs = await getDocs(projectsCollection);
 
-        const fetchedProjects = await Promise.all(
-          projectDocs.docs.map(async (doc) => {
-            const data = doc.data();
+        const fetchedProjects = [];
+        for (const doc of projectDocs.docs) {
+          const data = doc.data();
+
+          let imageUrl = "";
+          try {
             const imageRef = ref(storage, `projects/${data["ImageUrl"]}`);
-            const imageUrl = await getDownloadURL(imageRef);
-            return { img: imageUrl, link: data.link };
-          })
-        );
+            imageUrl = await getDownloadURL(imageRef);
+          } catch (error) {
+            console.error(
+              `Error fetching image for ${data["ImageUrl"]}:`,
+              error
+            );
+            imageUrl = "https://via.placeholder.com/300?text=Image+Not+Found";
+            setError(
+              `Image not found for project: ${data.title || "Untitled Project"}`
+            );
+          }
+
+          let formattedLink = data.link;
+          if (
+            formattedLink &&
+            !formattedLink.startsWith("http://") &&
+            !formattedLink.startsWith("https://")
+          ) {
+            formattedLink = `https://${formattedLink}`;
+          }
+
+          fetchedProjects.push({
+            img: imageUrl,
+            link: formattedLink,
+            title: data.title || "Untitled Project",
+            description: data.description || "No description available.",
+          });
+        }
+
         setProjects(fetchedProjects);
+        if (fetchedProjects.length === 0) {
+          setError("No projects found.");
+        }
       } catch (error) {
         console.error("Error fetching projects:", error);
+        setError("Failed to load projects: " + error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -45,14 +80,12 @@ export const Projects = () => {
     fetchProjects();
   }, []);
 
-  // Toggle to the next project
   const handleForward = () => {
     setCurrentProjectIndex((prevIndex) =>
       prevIndex === projects.length - 1 ? 0 : prevIndex + 1
     );
   };
 
-  // Toggle to the previous project
   const handleBackward = () => {
     setCurrentProjectIndex((prevIndex) =>
       prevIndex === 0 ? projects.length - 1 : prevIndex - 1
@@ -62,56 +95,67 @@ export const Projects = () => {
   const currentProject = projects[currentProjectIndex];
 
   return (
-    <div
-      className="projects w-full h-fit py-16 bg-cover bg-center bg-no-repeat"
-      id="projects"
+    <section
+      className="w-full min-h-screen py-16 bg-cover bg-center bg-no-repeat text-white"
       style={{ backgroundImage: `url(${backgroundImage})` }}
+      id="projects"
     >
-      <div className="w-full lg:w-[50%] h-fit lg:h-96 flex flex-col lg:flex-row items-center justify-center lg:items-start lg:justify-start gap-8 mx-auto px-8 lg:pl-8 ">
-        <div className="w-full h-fit flex flex-col gap-8 justify-center items-center lg:items-start py-4">
-          <div className="flex flex-col items-center justify-center lg:items-start lg:justify-start">
-            <p className="text-white font-semibold text-lg lg:text-xl">
-              Projects
-            </p>
-            <hr className="w-8 h-0.5 bg-white border-none mt-2" />
-          </div>
-          <p className="w-[90%] lg:w-[80%] text-white text-center lg:text-left">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold mb-6 text-center">Projects</h2>
+        <div className="w-full max-w-4xl mx-auto">
+          <p className="text-center mb-8">
             Have a look at the projects I have worked on using my Stack.
           </p>
-          <div className="w-full flex gap-6 items-center justify-center lg:items-start lg:justify-start">
-            <div
-              className="w-fit bg-secondary rounded p-2 text-white cursor-pointer"
-              onClick={handleBackward}
-            >
-              <HiChevronLeft />
-            </div>
-            <div
-              className="w-fit bg-secondary rounded p-2 text-white cursor-pointer"
-              onClick={handleForward}
-            >
-              <HiChevronRight />
-            </div>
-          </div>
-        </div>
-        {currentProject && (
-          <div
-            className="w-full h-96 lg:h-full bg-slate-500 rounded-tl-xl rounded-br-xl relative projectList border-2 border-tet"
-            style={{
-              backgroundImage: `url(${currentProject.img})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <a href={currentProject.link} target="_blank">
-              <div className="w-16 h-16 rounded-full bg-tet flex justify-center items-center absolute -bottom-4 -right-4 scale-animation">
-                <div className="w-12 h-12 rounded-full bg-secondary flex justify-center items-center">
-                  <p className="text-white font-bold text-center">Visit</p>
-                </div>
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          {loading && <p className="text-center mb-4">Loading projects...</p>}
+          {!loading && projects.length === 0 && (
+            <p className="text-center mb-4 text-gray-400">
+              No projects to display.
+            </p>
+          )}
+          {currentProject && (
+            <div className="relative">
+              <img
+                src={currentProject.img}
+                alt={currentProject.title}
+                className="w-full h-64 lg:h-96 object-cover rounded-lg shadow-lg"
+              />
+              <div className="mt-4 text-center">
+                <h3 className="text-xl font-semibold">
+                  {currentProject.title}
+                </h3>
+                <p className="mt-2">{currentProject.description}</p>
+                {currentProject.link ? (
+                  <a
+                    href={currentProject.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-block bg-orange-500 text-white py-2 px-8 rounded-full hover:bg-orange-600"
+                  >
+                    Visit
+                  </a>
+                ) : (
+                  <p className="mt-4 text-gray-400">No link available</p>
+                )}
               </div>
-            </a>
-          </div>
-        )}
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={handleBackward}
+                  className="bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600"
+                >
+                  <HiChevronLeft />
+                </button>
+                <button
+                  onClick={handleForward}
+                  className="bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600"
+                >
+                  <HiChevronRight />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };

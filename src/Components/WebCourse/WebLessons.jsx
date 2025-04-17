@@ -1,40 +1,65 @@
 import { useState, useEffect } from "react";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, dbase } from "../FirebaseConfig";
-import { PaystackButton } from "react-paystack";
 
 export const WebLessons = () => {
   const [lessons, setLessons] = useState([]);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [introVideoUrl, setIntroVideoUrl] = useState(null);
+  const [introVideo, setIntroVideo] = useState(null);
+  const storage = getStorage();
 
   useEffect(() => {
+    // Fetch the Introduction video directly from Storage
+    const fetchIntroVideo = async () => {
+      try {
+        const introRef = ref(storage, "WebDevelopment/INTRODUCTION.mp4");
+        const url = await getDownloadURL(introRef);
+        setIntroVideo(url);
+      } catch (error) {
+        console.error("Error fetching Introduction video:", error);
+      }
+    };
+
+    // Fetch other lessons from Firestore
     const fetchLessons = async () => {
       try {
         const querySnapshot = await getDocs(
-          collection(dbase, "WebDevelopment")
+          collection(dbase, "EWebDevelopment")
         );
-        const lessonsData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setLessons(lessonsData);
+        const lessonsData = await Promise.all(
+          querySnapshot.docs.map(async (doc) => {
+            const lessonData = doc.data();
+
+            if (lessonData.videoLink) {
+              try {
+                const videoUrl = await getDownloadURL(
+                  ref(storage, lessonData.videoLink)
+                );
+                return { id: doc.id, ...lessonData, videoLink: videoUrl };
+              } catch (error) {
+                console.error("Error fetching video URL:", error);
+              }
+            }
+            return { id: doc.id, ...lessonData, videoLink: null };
+          })
+        );
+
+        // Ensure lessons are sorted by a specific field (e.g., lessonNumber)
+        const sortedLessons = lessonsData
+          .filter(Boolean) // Remove any undefined values caused by failed video fetches
+          .sort((a, b) => a.lessonNumber - b.lessonNumber); // Sorting by a numerical field
+
+        setLessons(sortedLessons);
       } catch (error) {
         console.error("Error fetching lessons:", error);
       }
     };
 
+    fetchIntroVideo();
     fetchLessons();
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -43,11 +68,9 @@ export const WebLessons = () => {
         try {
           const userDocRef = doc(dbase, "users", currentUser.uid);
           const userSnap = await getDoc(userDocRef);
-          if (userSnap.exists()) {
-            setIsSubscribed(userSnap.data().isSubscribed);
-          } else {
-            setIsSubscribed(false);
-          }
+          setIsSubscribed(
+            userSnap.exists() ? userSnap.data().isSubscribed : false
+          );
         } catch (error) {
           console.error("Error fetching user data:", error);
           setIsSubscribed(false);
@@ -60,45 +83,8 @@ export const WebLessons = () => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const fetchIntroVideo = async () => {
-      try {
-        const storage = getStorage();
-        const videoRef = ref(storage, "WebDevelopment/INTRODUCTION.mp4");
-        const url = await getDownloadURL(videoRef);
-        setIntroVideoUrl(url);
-      } catch (error) {
-        console.warn("No introduction video available yet.");
-        setIntroVideoUrl(null);
-      }
-    };
-
-    fetchIntroVideo();
-  }, []);
-
   const toggleLesson = (index) => {
     setExpandedIndex(expandedIndex === index ? null : index);
-  };
-
-  const paystackConfig = {
-    reference: new Date().getTime().toString(),
-    email: user?.email || "",
-    amount: 200 * 100,
-    publicKey: "pk_test_709459aa3725033176d7a957bb7a3191624988e5",
-  };
-
-  const onSuccess = async () => {
-    if (user) {
-      try {
-        const userDocRef = doc(dbase, "users", user.uid);
-        await updateDoc(userDocRef, { isSubscribed: true });
-        setIsSubscribed(true);
-        alert("Payment successful. You are now subscribed!");
-      } catch (error) {
-        console.error("Error updating subscription status:", error);
-        alert("Payment successful, but error updating subscription status.");
-      }
-    }
   };
 
   return (
@@ -108,26 +94,37 @@ export const WebLessons = () => {
           Course Video Lessons
         </p>
         <hr className="w-8 h-0.5 bg-primary my-2" />
+        <p className="border-y-2 border-primary py-4 text-center text-primary">
+          This is a complete list of the video lessons for the course. You have
+          to be subscribed to see the videos and stream them.
+        </p>
 
-        <div className="w-full mt-6">
-          {/* Introduction Video */}
-          <div className="w-full mb-6">
-            <p className="font-semibold text-white">Introduction Video</p>
-            {introVideoUrl ? (
+        {/* Introduction Video - Always Available */}
+        <div className="w-full mt-6 text-white">
+          <div className="flex justify-between items-center bg-green-700 p-4">
+            <p className="font-semibold">Introduction</p>
+          </div>
+          <div className="mt-2 bg-gray-800 p-4">
+            {introVideo ? (
               <video
                 controls
                 controlsList="nodownload"
-                className="w-full rounded-md"
-                src={introVideoUrl}
                 onContextMenu={(e) => e.preventDefault()}
+                className="w-full rounded-md"
+                src={introVideo}
+                type="video/mp4"
               />
             ) : (
-              <div className="w-full h-48 bg-black rounded-md flex items-center justify-center text-gray-500">
-                No video uploaded yet
-              </div>
+              <p className="text-white">
+                No video available. Course is starting in March, 2025. Stay
+                connected
+              </p>
             )}
           </div>
+        </div>
 
+        {/* Other Lessons - Subscription Required */}
+        <div className="w-full mt-6">
           {lessons.map((lesson, index) => (
             <div key={lesson.id} className="w-full text-white mb-4">
               <div
@@ -139,6 +136,7 @@ export const WebLessons = () => {
                 </p>
                 <span>{expandedIndex === index ? "−" : "+"}</span>
               </div>
+
               {expandedIndex === index && (
                 <div className="mt-2 bg-gray-800 p-4">
                   {isSubscribed ? (
@@ -146,13 +144,14 @@ export const WebLessons = () => {
                       <video
                         controls
                         controlsList="nodownload"
+                        onContextMenu={(e) => e.preventDefault()}
                         className="w-full rounded-md"
                         src={lesson.videoLink}
-                        onContextMenu={(e) => e.preventDefault()}
+                        type="video/mp4"
                       />
                     ) : (
                       <p className="text-yellow-500">
-                        No video link available for this lesson.
+                        No video available for this lesson.
                       </p>
                     )
                   ) : (
@@ -166,15 +165,14 @@ export const WebLessons = () => {
           ))}
         </div>
 
+        {/* Subscribe Button */}
         {!isSubscribed && (
-          <div className="mt-6">
-            <PaystackButton
-              {...paystackConfig}
-              onSuccess={onSuccess}
-              className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center"
-              text="SUBSCRIBE TO START"
-            />
-          </div>
+          <a
+            href="/Payment"
+            className="px-8 py-2 bg-secondary rounded-full mt-6 font-medium text-white text-center"
+          >
+            SUBSCRIBE TO START
+          </a>
         )}
       </div>
     </div>
